@@ -1,19 +1,35 @@
 import React, { Component } from "react";
-import Cards from "./cards/cards";
-import Chart from "./charts/chart";
-import CountryBox from "./countryBox/countryBox";
-import { Container } from "@material-ui/core";
+import Cards from "./components/cards/cards";
+import Chart from "./components/chart/chart";
+import CountryPicker from "./components/countryPicker/countryPicker";
+import http from "./services/httpService";
+import styles from "./App.module.css";
 
 class App extends Component {
-  state = {};
+  state = {
+    country: "",
+    data: {},
+  };
+
+  handleCountryChange = async (country) => {
+    const data = country
+      ? await http.getCountryData(country)
+      : await http.getData();
+    this.setState({ data, country });
+  };
+
+  async componentDidMount() {
+    const data = await http.getData();
+    this.setState({ data });
+  }
   render() {
     return (
-      <Container maxWidth="sm">
-        <h1>Hello from App</h1>
-        <Cards />
-        <CountryBox />
-        <Chart />
-      </Container>
+      <div className={styles.container}>
+        <img src="/image.png" alt="Corona Vairous" className={styles.img} />
+        <Cards data={this.state.data} />
+        <CountryPicker onCountryChange={this.handleCountryChange} />
+        <Chart data={this.state.data} country={this.state.country} />
+      </div>
     );
   }
 }
